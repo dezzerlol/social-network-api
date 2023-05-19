@@ -1,0 +1,4 @@
+postgres:
+  maxOpenConn: 25
+  maxIdleConn: 25
+  connMaxLifeTime: 10
