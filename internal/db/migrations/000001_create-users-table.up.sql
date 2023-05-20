@@ -1,0 +1,12 @@
+CREATE TABLE IF NOT EXISTS users (
+    id text PRIMARY KEY,
+    email citext UNIQUE NOT NULL,
+    password_hash bytea NOT NULL,
+    first_name text NOT NULL,
+    last_name text NOT NULL,
+    username text UNIQUE NOT NULL,
+    avatar text,
+    birthdate DATE,
+    activated bool NOT NULL,
+    created_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
+);

@@ -13,12 +13,17 @@ run:
 ## db/migrate: executes all migrations from migrations folder
 .PHONY: db/migrate
 db/migrate:
-	migrate -path=./migrations -database=${DB_DSN} up
+	migrate -path=./internal/db/migrations -database=${DB_DSN} up
+
+## db/unmigrate: executes all migrations from migrations folder
+.PHONY: db/migrate-down
+db/migrate-down:
+	migrate -path=./internal/db/migrations -database=${DB_DSN} down
 
 ## db/migration name=$1: creates new migration with given name
 .PHONY: db/migration
 db/migration:
-	migrate create -seq -ext .sql -dir ./migrations ${name}
+	migrate create -seq -ext .sql -dir ./internal/db/migrations ${name}
 
 ## audit: tidy dependencies and format, vet and test all code
 .PHONY: audit

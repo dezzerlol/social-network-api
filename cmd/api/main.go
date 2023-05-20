@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"social-network-api/config"
+	"social-network-api/internal/db"
 	"social-network-api/internal/http"
-	"social-network-api/internal/repository/pg"
 	"social-network-api/pkg/logger"
 
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,7 @@ func main() {
 		logger.Fatalf("Error reading config: %s", err)
 	}
 
-	db, err := pg.New(cfg)
+	db, err := db.New(cfg)
 
 	if err != nil {
 		logger.Fatalf("Error starting db: %s", err)
