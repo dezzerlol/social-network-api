@@ -1,23 +1,43 @@
 package password
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base32"
 	"errors"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Generate(plainTextPass string) (string, error) {
+type Password struct {
+	Hash          []byte
+	PlainTextPass string
+}
+
+type AuthToken struct {
+	Plaintext string    `json:"token"`
+	Hash      []byte    `json:"-"`
+	UserID    int64     `json:"-"`
+	Expiry    time.Time `json:"expiry"`
+	Scope     string    `json:"-"`
+}
+
+func (p *Password) GeneratePassword(plainTextPass string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plainTextPass), 12)
 
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return string(hash), nil
+	p.PlainTextPass = plainTextPass
+	p.Hash = hash
+
+	return nil
 }
 
-func Matches(plainTextPass string, hash []byte) (bool, error) {
-	err := bcrypt.CompareHashAndPassword(hash, []byte(plainTextPass))
+func (p *Password) Matches(plainTextPass string) (bool, error) {
+	err := bcrypt.CompareHashAndPassword(p.Hash, []byte(plainTextPass))
 
 	if err != nil {
 		switch {
@@ -29,4 +49,26 @@ func Matches(plainTextPass string, hash []byte) (bool, error) {
 	}
 
 	return true, nil
+}
+
+func (p *Password) GenerateAuthToken(userID int64, ttl time.Duration) (*AuthToken, error) {
+	token := &AuthToken{
+		UserID: userID,
+		Expiry: time.Now().Add(ttl),
+	}
+
+	randomBytes := make([]byte, 16)
+
+	// fill byte slice with random bytes from OS
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	token.Plaintext = base32.StdEncoding.WithPadding(base32.NoPadding).EncodeToString(randomBytes)
+
+	hash := sha256.Sum256([]byte(token.Plaintext))
+	token.Hash = hash[:]
+
+	return token, nil
 }

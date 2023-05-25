@@ -1,6 +1,6 @@
 package models
 
 type Like struct {
-	UserId string `json:"user_id"`
-	PostId string `json:"post_id"`
+	UserId int64 `json:"user_id"`
+	PostId int64 `json:"post_id"`
 }

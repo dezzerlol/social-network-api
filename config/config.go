@@ -15,6 +15,12 @@ type Config struct {
 		MaxIdleConn     int32         `mapstructure:"maxIdleConn"`
 		ConnMaxLifeTime time.Duration `mapstructure:"connMaxLifeTime"`
 	} `mapstructure:"postgres"`
+
+	Redis struct {
+		Host string `mapstructure:"host"`
+		Port int    `mapstructure:"port"`
+		Pass string `mapstructure:"pass"`
+	} `mapstructure:"redis"`
 }
 
 func Load(path string) (*Config, error) {

@@ -1,14 +1,11 @@
 package main
 
 import (
-	"time"
-
 	"social-network-api/config"
 	"social-network-api/internal/db"
 	"social-network-api/internal/http"
+	"social-network-api/internal/redis"
 	"social-network-api/pkg/logger"
-
-	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -27,15 +24,10 @@ func main() {
 
 	defer db.Close()
 
-	r := gin.Default()
+	cache := redis.New(cfg.Redis.Host, cfg.Redis.Port, cfg.Redis.Pass)
 
-	r.GET("/health", func(ctx *gin.Context) {
-		time.Sleep(10 * time.Second)
-		ctx.JSON(200, gin.H{
-			"health": "ok",
-		})
-	})
+	defer cache.Close()
 
-	httpServer := http.New(r, logger)
+	httpServer := http.New(logger, db, cache)
 	httpServer.Run()
 }

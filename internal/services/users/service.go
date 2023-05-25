@@ -4,7 +4,6 @@ import (
 	"context"
 	"social-network-api/internal/db/models"
 	"social-network-api/internal/repository/users"
-	"social-network-api/pkg/password"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -13,45 +12,46 @@ type Service interface {
 	Create(ctx context.Context, user *models.User) error
 	FindByEmail(ctx context.Context, email string) (*models.User, error)
 	FindByUsername(ctx context.Context, username string) (*models.User, error)
+	CheckPasswordHash(user *models.User) (bool, error)
 }
 
 type service struct {
-	DB       *pgxpool.Pool
 	userRepo *users.Repo
 }
 
 func New(db *pgxpool.Pool) Service {
-	return &service{DB: db}
+	return &service{
+		userRepo: users.NewRepo(db),
+	}
 }
 
 func (s *service) Create(ctx context.Context, user *models.User) error {
 	// check if user with this email already exists
-	user, err := s.FindByEmail(ctx, user.Email)
+	existEmail, err := s.userRepo.IsEmailUnique(ctx, user.Email)
 	if err != nil {
 		return err
 	}
 
-	if user != nil {
+	if existEmail {
 		return users.ErrDuplicateEmail
 	}
 
 	// check if user with this username already exists
-	user, err = s.FindByUsername(ctx, user.Username)
+	existUsername, err := s.userRepo.IsUsernameUnique(ctx, user.Username)
 	if err != nil {
 		return err
 	}
 
-	if user != nil {
+	if existUsername {
 		return users.ErrDuplicateUsername
 	}
 
 	// hash password
-	hashedPass, err := password.Generate(user.Password)
+	err = user.Password.GeneratePassword(user.Password.PlainTextPass)
 	if err != nil {
 		return err
 	}
 
-	user.Password = hashedPass
 	user.Activated = false
 
 	err = s.userRepo.Create(ctx, user)
@@ -80,4 +80,8 @@ func (s *service) FindByUsername(ctx context.Context, username string) (*models.
 	}
 
 	return user, nil
+}
+
+func (s *service) CheckPasswordHash(user *models.User) (bool, error) {
+	return user.Password.Matches(user.Password.PlainTextPass)
 }

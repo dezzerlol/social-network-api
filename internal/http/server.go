@@ -6,29 +6,35 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"social-network-api/internal/redis"
 	"syscall"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	"go.uber.org/zap"
 )
 
 type Server struct {
-	router http.Handler
 	logger *zap.SugaredLogger
+	db     *pgxpool.Pool
+	cache  *redis.Client
 }
 
-func New(router http.Handler, logger *zap.SugaredLogger) *Server {
+func New(logger *zap.SugaredLogger, db *pgxpool.Pool, cache *redis.Client) *Server {
 	return &Server{
-		router: router,
 		logger: logger,
+		db:     db,
+		cache:  cache,
 	}
 }
 
 func (s Server) Run() {
+	router := s.setHTTPRouter()
+
 	// Startup with graceful shutdown
 	srv := &http.Server{
 		Addr:         "localhost:5000",
-		Handler:      s.router,
+		Handler:      router,
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,

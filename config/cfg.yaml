@@ -2,3 +2,8 @@ postgres:
   maxOpenConn: 25
   maxIdleConn: 25
   connMaxLifeTime: 10
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  pass: ''
