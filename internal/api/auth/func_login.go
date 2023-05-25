@@ -15,8 +15,8 @@ func (h *handler) Login() gin.HandlerFunc {
 			Password string `json:"password" binding:"required"`
 		}
 
-		if err := c.BindJSON(&input); err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
+		if err := c.ShouldBindJSON(&input); err != nil {
+			h.payload.BadRequest(c, err)
 			return
 		}
 
@@ -26,26 +26,26 @@ func (h *handler) Login() gin.HandlerFunc {
 		user, err := h.userService.FindByEmail(ctx, input.Email)
 
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			h.payload.InternalServerError(c, err)
 			return
 		}
 
 		passMatch, err := user.Password.Matches(input.Password)
 
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			h.payload.InternalServerError(c, err)
 			return
 		}
 
 		if !passMatch {
-			c.AbortWithError(http.StatusUnauthorized, err)
+			h.payload.InvalidCredentials(c)
 			return
 		}
 
 		token, err := user.Password.GenerateAuthToken(user.Id, 24*time.Hour)
 
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			h.payload.InternalServerError(c, err)
 			return
 		}
 
@@ -53,13 +53,15 @@ func (h *handler) Login() gin.HandlerFunc {
 		err = h.cache.Set(ctx, token.Plaintext, user.Id, 24*time.Hour).Err()
 
 		if err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			h.payload.InternalServerError(c, err)
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
+		payload := map[string]interface{}{
 			"auth_token": token,
-		})
+		}
+
+		h.payload.WriteJSON(c, http.StatusOK, payload)
 	}
 
 }

@@ -19,8 +19,8 @@ func (h *handler) Signup() gin.HandlerFunc {
 			Lastname  string `json:"lastname" binding:"required"`
 		}
 
-		if err := c.BindJSON(&input); err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
+		if err := c.ShouldBindJSON(&input); err != nil {
+			h.payload.BadRequest(c, err)
 			return
 		}
 
@@ -36,14 +36,16 @@ func (h *handler) Signup() gin.HandlerFunc {
 		user.Password.PlainTextPass = input.Password
 
 		if err := h.userService.Create(ctx, user); err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			h.payload.BadRequest(c, err)
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{
+		payload := map[string]interface{}{
 			"message": "User created successfully.",
 			"user_id": user.Id,
-		})
+		}
+
+		h.payload.WriteJSON(c, http.StatusCreated, payload)
 	}
 
 }
