@@ -1,4 +1,4 @@
-package config
+package cfg
 
 import (
 	"log"
@@ -21,26 +21,36 @@ type Config struct {
 		Port int    `mapstructure:"port"`
 		Pass string `mapstructure:"pass"`
 	} `mapstructure:"redis"`
+
+	Cloud struct {
+		Name   string `mapstructure:"CLOUDINARY_CLOUD_NAME"`
+		Key    string `mapstructure:"CLOUDINARY_API_KEY"`
+		Secret string `mapstructure:"CLOUDINARY_API_SECRET"`
+		Folder string `mapstructure:"CLOUDINARY_UPLOAD_FOLDER"`
+	} `mapstructure:"cloudinary"`
 }
 
-func Load(path string) (*Config, error) {
-	var config Config
+var cfg Config
 
+func Load(path string) error {
 	readFromConfigFile()
 	readFromEnvFile(path)
 
 	viper.AutomaticEnv()
 
-	err := viper.Unmarshal(&config)
+	err := viper.Unmarshal(&cfg)
 	if err != nil {
 		log.Fatalf("unable to decode into struct, %v", err)
 	}
 
-	return &config, nil
+	return nil
+}
+
+func Get() *Config {
+	return &cfg
 }
 
 func readFromConfigFile() {
-
 	viper.SetConfigFile("./config/cfg.yaml")
 
 	if err := viper.ReadInConfig(); err != nil {

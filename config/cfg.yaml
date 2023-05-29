@@ -7,3 +7,9 @@ redis:
   host: 127.0.0.1
   port: 6379
   pass: ''
+
+cloudinary:
+  CLOUDINARY_CLOUD_NAME: dgeksii7s
+  CLOUDINARY_API_KEY: 666618811268123
+  CLOUDINARY_API_SECRET: ixe22vA4qG2_0d9QWpQegBCUlvs
+  CLOUDINARY_UPLOAD_FOLDER: go-social-network

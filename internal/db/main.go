@@ -8,18 +8,18 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func New(cfg *config.Config) (*pgxpool.Pool, error) {
-	dbConf, err := pgxpool.ParseConfig(cfg.DB_DSN)
+func New() (*pgxpool.Pool, error) {
+	dbConf, err := pgxpool.ParseConfig(config.Get().DB_DSN)
 
 	if err != nil {
 		return nil, err
 	}
 
-	dbConf.MaxConns = cfg.DB_CFG.MaxOpenConn
-	dbConf.MinConns = cfg.DB_CFG.MaxIdleConn
-	dbConf.MaxConnIdleTime = cfg.DB_CFG.ConnMaxLifeTime * time.Minute
+	dbConf.MaxConns = config.Get().DB_CFG.MaxOpenConn
+	dbConf.MinConns = config.Get().DB_CFG.MaxIdleConn
+	dbConf.MaxConnIdleTime = config.Get().DB_CFG.ConnMaxLifeTime * time.Minute
 
-	db, err := pgxpool.New(context.Background(), cfg.DB_DSN)
+	db, err := pgxpool.New(context.Background(), config.Get().DB_DSN)
 
 	if err != nil {
 		return nil, err

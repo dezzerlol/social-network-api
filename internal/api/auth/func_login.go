@@ -11,12 +11,12 @@ import (
 func (h *handler) Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var input struct {
-			Email    string `json:"email" binding:"required"`
-			Password string `json:"password" binding:"required"`
+			Email    string `json:"email" binding:"required,email"`
+			Password string `json:"password" binding:"required,min=6"`
 		}
 
-		if err := c.ShouldBindJSON(&input); err != nil {
-			h.payload.BadRequest(c, err)
+		if err := h.payload.ReadJSON(c, &input); err != nil {
+			h.payload.ValidationError(c, err)
 			return
 		}
 
