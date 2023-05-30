@@ -3,7 +3,7 @@ package users
 import (
 	"context"
 	"errors"
-	"fmt"
+
 	"social-network-api/internal/db/models"
 
 	"github.com/jackc/pgx/v5"
@@ -45,8 +45,6 @@ func (r Repo) Create(ctx context.Context, user *models.User) error {
 		QueryRow(ctx, query, args...).
 		Scan(&user.Id, &user.Created_at)
 
-	fmt.Println(err)
-
 	if err != nil {
 		switch {
 		case err.Error() == `pq: duplicate key value violates unique constraint "users_email_key"`:
@@ -71,10 +69,7 @@ func (r Repo) IsEmailUnique(ctx context.Context, email string) (bool, error) {
 
 	err := r.DB.
 		QueryRow(ctx, query, email).
-		Scan(
-			&user.Id,
-			&user.Email,
-		)
+		Scan(&user.Id, &user.Email)
 
 	if err != nil {
 		switch {
@@ -98,10 +93,7 @@ func (r Repo) IsUsernameUnique(ctx context.Context, username string) (bool, erro
 
 	err := r.DB.
 		QueryRow(ctx, query, username).
-		Scan(
-			&user.Id,
-			&user.Username,
-		)
+		Scan(&user.Id, &user.Username)
 
 	if err != nil {
 		switch {

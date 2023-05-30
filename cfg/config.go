@@ -51,7 +51,7 @@ func Get() *Config {
 }
 
 func readFromConfigFile() {
-	viper.SetConfigFile("./config/cfg.yaml")
+	viper.SetConfigFile("./cfg/cfg.yaml")
 
 	if err := viper.ReadInConfig(); err != nil {
 		log.Fatalf("Error reading config file, %s", err)

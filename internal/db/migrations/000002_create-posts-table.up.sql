@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS posts (
     id bigserial PRIMARY KEY,
-    userId bigserial NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    user_id bigserial NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     body text NOT NULL,
     created_at timestamp(0) with time zone NOT NULL DEFAULT NOW()
 );

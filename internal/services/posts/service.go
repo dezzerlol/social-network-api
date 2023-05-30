@@ -3,7 +3,8 @@ package posts
 import (
 	"context"
 	"mime/multipart"
-	cfg "social-network-api/config"
+	"social-network-api/cfg"
+	"social-network-api/internal/db/models"
 	"social-network-api/internal/repository/media"
 	"social-network-api/internal/repository/posts"
 	"time"
@@ -31,17 +32,31 @@ func (s *service) CreatePost(files []*multipart.FileHeader, body string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	file_urls := make([]string, len(files))
 	// Upload files to cloud
-	for _, file := range files {
+	media := make([]models.Media, len(files))
+	for i, file := range files {
 		file, _ := file.Open()
+		defer file.Close()
 
 		res, err := s.mediaRepo.Upload(ctx, file, "posts")
 		if err != nil {
 			return err
 		}
 
-		file_urls = append(file_urls, res.PublicLink)
+		media[i].Url = res.PublicLink
+	}
+
+	// Create post
+	post := &models.Post{
+		Body:   body,
+		UserId: 5,
+		Images: media,
+	}
+
+	err := s.postsRepo.CreatePost(ctx, post)
+
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -5,25 +5,15 @@ help:
 	@echo 'Usage:'
 	@sed -n 's/^##//p' ${MAKEFILE_LIST} | column -t -s ':' |  sed -e 's/^/ /'
 
+
+#=============================================================================
+#========================== SERVER ===========================================
+#=============================================================================
+
 ## run: runs app
 .PHONY: run
 run:
 	go run ./cmd/api
-
-## db/migrate: executes all migrations from migrations folder
-.PHONY: db/migrate
-db/migrate:
-	migrate -path=./internal/db/migrations -database=${DB_DSN} up
-
-## db/unmigrate: executes all migrations from migrations folder
-.PHONY: db/migrate-down
-db/migrate-down:
-	migrate -path=./internal/db/migrations -database=${DB_DSN} down
-
-## db/migration name=$1: creates new migration with given name
-.PHONY: db/migration
-db/migration:
-	migrate create -seq -ext .sql -dir ./internal/db/migrations ${name}
 
 ## audit: tidy dependencies and format, vet and test all code
 .PHONY: audit
@@ -54,3 +44,23 @@ build/api:
 	@echo 'Building cmd/api'
 	GOOS=windows GOARCH=amd64 go build -ldflags='-s' -o=./bin ./cmd/api
 	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin ./cmd/api
+
+
+#=============================================================================
+#========================== DATABASE =========================================
+#=============================================================================
+
+## db/migrate: executes all migrations from migrations folder
+.PHONY: db/migrate
+db/migrate:
+	migrate -path=./internal/db/migrations -database=${DB_DSN} up
+
+## db/unmigrate: executes all migrations from migrations folder
+.PHONY: db/migrate-down
+db/migrate-down:
+	migrate -path=./internal/db/migrations -database=${DB_DSN} down
+
+## db/migration name=$1: creates new migration with given name
+.PHONY: db/migration
+db/migration:
+	migrate create -seq -ext .sql -dir ./internal/db/migrations ${name}

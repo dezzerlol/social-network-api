@@ -10,10 +10,13 @@ func (h *handler) CreatePost() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		form, _ := c.MultipartForm()
 		files := form.File["images"]
-		//body := form.Value["body"][0]
+		body := form.Value["body"][0]
 
-		for _, file := range files {
-			c.SaveUploadedFile(file, "./uploads/"+file.Filename)
+		err := h.postsService.CreatePost(files, body)
+
+		if err != nil {
+			h.payload.BadRequest(c, err)
+			return
 		}
 
 		h.payload.WriteJSON(c, http.StatusCreated, "ok")

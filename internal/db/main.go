@@ -2,24 +2,24 @@ package db
 
 import (
 	"context"
-	"social-network-api/config"
+	"social-network-api/cfg"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func New() (*pgxpool.Pool, error) {
-	dbConf, err := pgxpool.ParseConfig(config.Get().DB_DSN)
+	dbConf, err := pgxpool.ParseConfig(cfg.Get().DB_DSN)
 
 	if err != nil {
 		return nil, err
 	}
 
-	dbConf.MaxConns = config.Get().DB_CFG.MaxOpenConn
-	dbConf.MinConns = config.Get().DB_CFG.MaxIdleConn
-	dbConf.MaxConnIdleTime = config.Get().DB_CFG.ConnMaxLifeTime * time.Minute
+	dbConf.MaxConns = cfg.Get().DB_CFG.MaxOpenConn
+	dbConf.MinConns = cfg.Get().DB_CFG.MaxIdleConn
+	dbConf.MaxConnIdleTime = cfg.Get().DB_CFG.ConnMaxLifeTime * time.Minute
 
-	db, err := pgxpool.New(context.Background(), config.Get().DB_DSN)
+	db, err := pgxpool.New(context.Background(), cfg.Get().DB_DSN)
 
 	if err != nil {
 		return nil, err

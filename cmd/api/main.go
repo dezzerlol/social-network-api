@@ -1,7 +1,7 @@
 package main
 
 import (
-	cfg "social-network-api/config"
+	"social-network-api/cfg"
 	"social-network-api/internal/db"
 	"social-network-api/internal/http"
 	"social-network-api/internal/redis"
