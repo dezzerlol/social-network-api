@@ -7,13 +7,13 @@ import (
 	"social-network-api/internal/db/models"
 	"social-network-api/internal/repository/media"
 	"social-network-api/internal/repository/posts"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Service interface {
-	CreatePost(files []*multipart.FileHeader, body string) error
+	CreatePost(ctx context.Context, files []*multipart.FileHeader, body string) error
+	DeletePost(ctx context.Context, postId int) error
 }
 
 type service struct {
@@ -28,10 +28,7 @@ func New(db *pgxpool.Pool) Service {
 	}
 }
 
-func (s *service) CreatePost(files []*multipart.FileHeader, body string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
+func (s *service) CreatePost(ctx context.Context, files []*multipart.FileHeader, body string) error {
 	// Upload files to cloud
 	media := make([]models.Media, len(files))
 	for i, file := range files {
@@ -54,6 +51,16 @@ func (s *service) CreatePost(files []*multipart.FileHeader, body string) error {
 	}
 
 	err := s.postsRepo.CreatePost(ctx, post)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) DeletePost(ctx context.Context, postId int) error {
+	err := s.postsRepo.DeletePost(ctx, postId, 5)
 
 	if err != nil {
 		return err

@@ -1,6 +1,7 @@
 package redis
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/redis/go-redis/v9"
@@ -18,4 +19,9 @@ func New(host string, port int, pass string) *Client {
 			DB:       0,
 		}),
 	}
+}
+
+func (c Client) MarshalBinary(val interface{}) (data []byte, err error) {
+	bytes, err := json.Marshal(val)
+	return bytes, err
 }

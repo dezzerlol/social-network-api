@@ -65,21 +65,13 @@ func (s *service) Create(ctx context.Context, user *models.User) error {
 func (s *service) FindByEmail(ctx context.Context, email string) (*models.User, error) {
 	user, err := s.userRepo.GetByEmail(ctx, email)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return user, err
 }
 
 func (s *service) FindByUsername(ctx context.Context, username string) (*models.User, error) {
 	user, err := s.userRepo.GetByUsername(ctx, username)
 
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+	return user, err
 }
 
 func (s *service) CheckPasswordHash(user *models.User) (bool, error) {

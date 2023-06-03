@@ -23,11 +23,15 @@ func (s *Server) setHTTPRouter() *gin.Engine {
 		auth := v1.Group("/auth")
 		auth.POST("/signup", authHandler.Signup())
 		auth.POST("/login", authHandler.Login())
+
+		auth.POST("/logout", authHandler.Logout())
 	}
 
 	{
 		// POSTS
 		posts := v1.Group("/posts")
+		posts.Use(s.AuthSession())
+
 		posts.POST("/", postsHandler.CreatePost())
 		posts.DELETE("/:id", postsHandler.DeletePost())
 		posts.POST("/:id/like", postsHandler.Like())

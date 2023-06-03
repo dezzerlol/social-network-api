@@ -130,7 +130,12 @@ func (r Repo) GetByEmail(ctx context.Context, email string) (*models.User, error
 		)
 
 	if err != nil {
-		return nil, err
+		switch {
+		case errors.Is(err, pgx.ErrNoRows):
+			return nil, ErrRecordNotFound
+		default:
+			return nil, err
+		}
 	}
 
 	return &user, nil

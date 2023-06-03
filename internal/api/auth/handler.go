@@ -13,6 +13,7 @@ import (
 type Handler interface {
 	Signup() gin.HandlerFunc
 	Login() gin.HandlerFunc
+	Logout() gin.HandlerFunc
 }
 
 type handler struct {

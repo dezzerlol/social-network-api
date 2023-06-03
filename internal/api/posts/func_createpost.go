@@ -1,7 +1,9 @@
 package posts
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +14,10 @@ func (h *handler) CreatePost() gin.HandlerFunc {
 		files := form.File["images"]
 		body := form.Value["body"][0]
 
-		err := h.postsService.CreatePost(files, body)
+		ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
+		defer cancel()
+
+		err := h.postsService.CreatePost(ctx, files, body)
 
 		if err != nil {
 			h.payload.BadRequest(c, err)
@@ -21,4 +26,5 @@ func (h *handler) CreatePost() gin.HandlerFunc {
 
 		h.payload.WriteJSON(c, http.StatusCreated, "ok")
 	}
+
 }

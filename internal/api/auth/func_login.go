@@ -2,7 +2,9 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"net/http"
+	"social-network-api/internal/repository/users"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -26,8 +28,14 @@ func (h *handler) Login() gin.HandlerFunc {
 		user, err := h.userService.FindByEmail(ctx, input.Email)
 
 		if err != nil {
-			h.payload.InternalServerError(c, err)
-			return
+			switch {
+			case errors.Is(err, users.ErrRecordNotFound):
+				h.payload.InvalidCredentials(c)
+				return
+			default:
+				h.payload.InternalServerError(c, err)
+				return
+			}
 		}
 
 		passMatch, err := user.Password.Matches(input.Password)
@@ -42,15 +50,19 @@ func (h *handler) Login() gin.HandlerFunc {
 			return
 		}
 
-		token, err := user.Password.GenerateAuthToken(user.Id, 24*time.Hour)
+		token, err := user.Password.GenerateAuthToken(user.Id, 7*24*time.Hour)
 
 		if err != nil {
 			h.payload.InternalServerError(c, err)
 			return
 		}
 
+		sessionUser, _ := h.cache.MarshalBinary(map[string]int64{
+			"id": user.Id,
+		})
+
 		// save token in cache
-		err = h.cache.Set(ctx, token.Plaintext, user.Id, 24*time.Hour).Err()
+		err = h.cache.Set(ctx, token.Plaintext, sessionUser, 24*time.Hour).Err()
 
 		if err != nil {
 			h.payload.InternalServerError(c, err)
@@ -61,6 +73,7 @@ func (h *handler) Login() gin.HandlerFunc {
 			"auth_token": token,
 		}
 
+		c.SetCookie("auth_token", token.Plaintext, 7*24*60*60, "/", "localhost", false, true)
 		h.payload.WriteJSON(c, http.StatusOK, payload)
 	}
 
