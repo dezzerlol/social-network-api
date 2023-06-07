@@ -23,7 +23,7 @@ type AuthToken struct {
 	Scope     string    `json:"-"`
 }
 
-func (p *Password) GeneratePassword(plainTextPass string) error {
+func (p *Password) HashPassword(plainTextPass string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(plainTextPass), 12)
 
 	if err != nil {

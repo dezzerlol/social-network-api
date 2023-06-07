@@ -33,6 +33,6 @@ func New(logger *zap.SugaredLogger, db *pgxpool.Pool, cache *redis.Client) Handl
 		logger:       logger,
 		cache:        cache,
 		payload:      payload.New(logger),
-		postsService: posts.New(db),
+		postsService: posts.NewService(db),
 	}
 }

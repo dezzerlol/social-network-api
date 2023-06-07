@@ -6,6 +6,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type SessionContext struct {
+	UserID int64
+}
+
 func (s *Server) AuthSession() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authCookie, err := c.Cookie("auth_token")
@@ -15,14 +19,16 @@ func (s *Server) AuthSession() gin.HandlerFunc {
 			return
 		}
 
-		sessionId := s.cache.Get(c.Request.Context(), authCookie)
+		user := SessionContext{}
 
-		if sessionId == nil {
+		err = s.cache.GetStruct(c.Request.Context(), authCookie, &user)
+
+		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 			return
 		}
 
-		c.Set("auth_token", sessionId)
+		c.Set("UserID", user)
 		c.Next()
 	}
 }

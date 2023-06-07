@@ -27,7 +27,7 @@ func New(logger *zap.SugaredLogger, db *pgxpool.Pool, cache *redis.Client) Handl
 	return &handler{
 		logger:      logger,
 		cache:       cache,
-		userService: users.New(db),
+		userService: users.NewService(db),
 		payload:     payload.New(logger),
 	}
 }

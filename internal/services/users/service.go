@@ -19,7 +19,7 @@ type service struct {
 	userRepo *users.Repo
 }
 
-func New(db *pgxpool.Pool) Service {
+func NewService(db *pgxpool.Pool) Service {
 	return &service{
 		userRepo: users.NewRepo(db),
 	}
@@ -47,7 +47,7 @@ func (s *service) Create(ctx context.Context, user *models.User) error {
 	}
 
 	// hash password
-	err = user.Password.GeneratePassword(user.Password.PlainTextPass)
+	err = user.Password.HashPassword(user.Password.PlainTextPass)
 	if err != nil {
 		return err
 	}

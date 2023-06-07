@@ -14,6 +14,15 @@ func (h *handler) CreatePost() gin.HandlerFunc {
 		files := form.File["images"]
 		body := form.Value["body"][0]
 
+		userId, isExist := c.Get("UserID")
+
+		if !isExist {
+			h.payload.Unauthorized(c)
+			return
+		}
+
+		h.logger.Info("userId ", userId)
+
 		ctx, cancel := context.WithTimeout(c.Request.Context(), 10*time.Second)
 		defer cancel()
 

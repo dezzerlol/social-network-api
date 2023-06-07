@@ -21,7 +21,7 @@ type service struct {
 	mediaRepo *media.Repo
 }
 
-func New(db *pgxpool.Pool) Service {
+func NewService(db *pgxpool.Pool) Service {
 	return &service{
 		postsRepo: posts.NewRepo(db),
 		mediaRepo: media.NewRepo(cfg.Get().Cloud.Name, cfg.Get().Cloud.Key, cfg.Get().Cloud.Secret),

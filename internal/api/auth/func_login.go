@@ -57,12 +57,12 @@ func (h *handler) Login() gin.HandlerFunc {
 			return
 		}
 
-		sessionUser, _ := h.cache.MarshalBinary(map[string]int64{
-			"id": user.Id,
-		})
+		sessionUser := map[string]int64{
+			"UserID": user.Id,
+		}
 
 		// save token in cache
-		err = h.cache.Set(ctx, token.Plaintext, sessionUser, 24*time.Hour).Err()
+		err = h.cache.SetStruct(ctx, token.Plaintext, sessionUser, 24*time.Hour)
 
 		if err != nil {
 			h.payload.InternalServerError(c, err)

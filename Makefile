@@ -38,7 +38,7 @@ vendor:
 	@echo 'Vendoring dependencies...'
 	go mod vendor
 
-## build/api: build app binary
+## build/api: build app binary for windows and linux
 .PHONY: build/api
 build/api:
 	@echo 'Building cmd/api'
